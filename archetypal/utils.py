@@ -828,6 +828,16 @@ def rmse(data, targets):
     return error
 
 
+def trapezoidal_approximation(alpha, ldc):
+    first_sum = 0
+    second_sum = 0
+    for i in range(1, 8760):
+        first_sum += (alpha[i] - alpha[i-1]) * ldc[alpha[i-1].astype(int)]
+        second_sum += ((ldc[alpha[i-1].astype(int)]-ldc[alpha[i].astype(
+            int)]) / 2) * (alpha[i] - alpha[i-1])
+    return first_sum - second_sum
+
+
 def piecewise(data):
     """returns a piecewise function from an array of the form
     [hour1, hour2, ..., value1, value2, ...]

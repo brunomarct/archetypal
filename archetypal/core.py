@@ -19,7 +19,7 @@ from . import settings, object_from_idf, object_from_idfs, simple_glazing, \
 from .plot import plot_energyprofile
 from .utils import log, label_surface, type_surface, layer_composition, \
     schedule_composition, time2time, \
-    year_composition, newrange, piecewise, rmse
+    year_composition, newrange, piecewise, rmse, trapezoidal_approximation
 
 
 class Template:
@@ -360,11 +360,14 @@ class EnergyProfile(pd.Series):
             hours_bounds = [(0, 8760) for i in range(0, n_bins + 1)]
 
             start_time = time.time()
+            alpha=range(0,8760)
             # log('discretizing EnergyProfile {}'.format(name), lg.DEBUG)
-            res = minimize(rmse, np.array(hours + sf), args=(self.values),
-                           method='L-BFGS-B',
-                           bounds=hours_bounds + sf_bounds,
+            res = minimize(trapezoidal_approximation, np.array(alpha), args=(self.values),
+                           method='Nelder-Mead',
                            options=dict(disp=True))
+
+            return res
+
             log('Completed discretization in {:,.2f} seconds'.format(
                 time.time() - start_time), lg.DEBUG)
             edges = res.x[0:n_bins + 1]
