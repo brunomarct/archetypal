@@ -25,6 +25,19 @@
 # >>> docker rmi $(docker images -q)
 ########################################################################
 
+FROM suchja/wine
+# unfortunately we later need to wait on wineserver. Thus a small script for waiting is supplied.
+USER root
+COPY waitonprocess.sh /scripts/
+RUN chmod +x /scripts/waitonprocess.sh
+
+# Install .NET Framework 4.0
+USER xclient
+RUN wine wineboot --init \
+		&& /scripts/waitonprocess.sh wineserver \
+		&& winetricks --unattended dotnet40 dotnet_verifier \
+		&& /scripts/waitonprocess.sh wineserver
+
 FROM continuumio/miniconda3
 LABEL maintainer="Samuel Letellier-Duchesne <samuel.letellier-duchesne@polymtl.ca>"
 LABEL url="https://github.com/samuelduchesne/archetypal"
