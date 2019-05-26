@@ -1,5 +1,5 @@
 import pandas as pd
-
+import numpy as np
 import archetypal as ar
 
 
@@ -67,3 +67,35 @@ def test_simple_energyseries():
     epc = ep.unit_conversion()
     res = epc.discretize()
     print(res)
+
+
+def test_some():
+    # Heating Load Profile
+    Fs = 8760
+    Sc = 100000  # kWh
+    f = 1
+    sample = 8760
+    x = np.arange(sample)
+    y1 = (np.cos(2 * np.pi * f * x / Fs) + f) * Sc
+
+    # Cooling Load Profile
+    Fs = 8760
+    Sc = 75000  # kWh
+    f = 1
+    sample = 8760
+    y2 = ((-np.cos(2 * np.pi * f * x / Fs)) * Sc) + Sc
+
+    # Electricity Load Profile
+    Fs = 8760
+    Sc = 75000  # kWh
+    f = 365 * 2  # Two peaks per day
+    sample = 8760
+    y3 = ((-np.cos(2 * np.pi * f * x / Fs)) * Sc) + Sc
+
+    # pd.DatetimeIndex(freq='1H')
+    d = {'HeatLoad': ar.EnergySeries(y1, from_units='J/hour'),
+         'CoolingLoad': ar.EnergySeries(y2, from_units='J/hour'),
+         'ElectricityLoad': ar.EnergySeries(y3, from_units='J/hour')}
+    CommunityProfile = ar.EnergyDataFrame(d, from_units='J/hour')
+    CommunityProfile.HeatingLoad
+    print(CommunityProfile)
